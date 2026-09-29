@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-label="Nations Maintenance">
+  <rect width="44" height="44" rx="11" fill="#17452f"/>
+  <path d="M8 29.5 15.5 14l5 9.5L25 15.5l11 14" fill="none" stroke="#f3eee3" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M8 29.5h28" stroke="#e2631a" stroke-width="2.6" stroke-linecap="round"/>
+</svg>
