@@ -170,14 +170,57 @@
   /* Built here and mounted beside the footer badges. A platform with no URL in
      SOCIALS is skipped entirely, so the site can never show an icon that leads
      nowhere — and adding one later is a one-line paste into SOCIALS. */
+  /* Each icon carries its own SVG presentation attributes, so Google can be the
+     real four-colour G (filled paths) and Instagram can keep its gradient,
+     while the rest are stroked in the platform's brand colour (set in the
+     stylesheet via .social [data-social="…"]). */
+  var STROKED = 'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"';
+
   var SOCIAL_ICONS = {
-    facebook: { label: 'Facebook', path: '<path d="M15 4h-2.3A3.2 3.2 0 0 0 9.5 7.2V10H7.4v2.9h2.1V21h2.9v-8.1h2.3l.5-2.9h-2.8V7.6c0-.4.3-.7.7-.7H15z"/>' },
-    instagram: { label: 'Instagram', path: '<rect x="3.5" y="3.5" width="17" height="17" rx="4.6"/><circle cx="12" cy="12" r="4"/><circle cx="16.9" cy="7.1" r="1.1" fill="currentColor" stroke="none"/>' },
-    google: { label: 'Google', path: '<path d="M20.2 12.2A8.4 8.4 0 1 1 17 5.6"/><path d="M20.2 12.2h-7.6"/>' },
-    youtube: { label: 'YouTube', path: '<rect x="2.6" y="5.6" width="18.8" height="12.8" rx="4"/><path d="M10.4 9.6l4.2 2.4-4.2 2.4z"/>' },
-    linkedin: { label: 'LinkedIn', path: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 10.6V16.2M8 7.7v.1M12 16.2v-3.3a2 2 0 0 1 4 0v3.3"/>' },
-    x: { label: 'X', path: '<path d="M4.4 4h3.5l4.2 5.6L16.8 4h2.8l-6.2 7.6L20 20h-3.5l-4.4-5.9L7.2 20H4.4l6.5-7.9z" fill="currentColor" stroke="none"/>' },
-    tiktok: { label: 'TikTok', path: '<path d="M14.6 4c.4 2 1.7 3.3 3.7 3.5v2.6c-1.4 0-2.6-.4-3.7-1.2v5.5a5.4 5.4 0 1 1-5.4-5.4c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.6V4z" fill="currentColor" stroke="none"/>' }
+    facebook: {
+      label: 'Facebook',
+      attrs: STROKED,
+      inner: '<path d="M15 4h-2.3A3.2 3.2 0 0 0 9.5 7.2V10H7.4v2.9h2.1V21h2.9v-8.1h2.3l.5-2.9h-2.8V7.6c0-.4.3-.7.7-.7H15z"/>'
+    },
+    instagram: {
+      label: 'Instagram',
+      attrs: 'fill="none" stroke="url(#igGradient)" stroke-width="1.7" stroke-linejoin="round"',
+      defs: '<defs><linearGradient id="igGradient" x1="0" y1="1" x2="1" y2="0">' +
+            '<stop offset="0" stop-color="#FEDA75"/><stop offset=".28" stop-color="#FA7E1E"/>' +
+            '<stop offset=".52" stop-color="#D62976"/><stop offset=".76" stop-color="#962FBF"/>' +
+            '<stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs>',
+      inner: '<rect x="3.5" y="3.5" width="17" height="17" rx="4.6"/><circle cx="12" cy="12" r="4"/>' +
+             '<circle cx="16.9" cy="7.1" r="1.1" fill="#D62976" stroke="none"/>'
+    },
+    google: {
+      label: 'Google',
+      attrs: 'fill="none" stroke="none"',
+      inner:
+        '<path fill="#4285F4" d="M21.6 12.23c0-.7-.06-1.37-.18-2.02H12v3.82h5.4a4.62 4.62 0 0 1-2 3.03v2.52h3.24c1.9-1.74 2.96-4.3 2.96-7.35z"/>' +
+        '<path fill="#34A853" d="M12 22c2.7 0 4.96-.9 6.62-2.42l-3.23-2.52c-.9.6-2.05.96-3.39.96-2.6 0-4.8-1.76-5.6-4.13H3.07v2.6A10 10 0 0 0 12 22z"/>' +
+        '<path fill="#FBBC05" d="M6.4 13.89a6 6 0 0 1 0-3.83v-2.6H3.07a10 10 0 0 0 0 9.03l3.33-2.6z"/>' +
+        '<path fill="#EA4335" d="M12 5.99c1.47 0 2.79.5 3.83 1.5l2.87-2.87C16.95 2.98 14.7 2 12 2A10 10 0 0 0 3.07 7.46l3.33 2.6C7.2 7.7 9.4 5.99 12 5.99z"/>'
+    },
+    youtube: {
+      label: 'YouTube',
+      attrs: STROKED,
+      inner: '<rect x="2.6" y="5.6" width="18.8" height="12.8" rx="4"/><path d="M10.4 9.6l4.2 2.4-4.2 2.4z"/>'
+    },
+    linkedin: {
+      label: 'LinkedIn',
+      attrs: STROKED,
+      inner: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 10.6V16.2M8 7.7v.1M12 16.2v-3.3a2 2 0 0 1 4 0v3.3"/>'
+    },
+    x: {
+      label: 'X',
+      attrs: 'fill="currentColor" stroke="none"',
+      inner: '<path d="M4.4 4h3.5l4.2 5.6L16.8 4h2.8l-6.2 7.6L20 20h-3.5l-4.4-5.9L7.2 20H4.4l6.5-7.9z"/>'
+    },
+    tiktok: {
+      label: 'TikTok',
+      attrs: 'fill="currentColor" stroke="none"',
+      inner: '<path d="M14.6 4c.4 2 1.7 3.3 3.7 3.5v2.6c-1.4 0-2.6-.4-3.7-1.2v5.5a5.4 5.4 0 1 1-5.4-5.4c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.6V4z"/>'
+    }
   };
 
   var socialMount = doc.querySelector('.footer-badges') || doc.querySelector('.site-footer .brand');
@@ -187,8 +230,8 @@
     SOCIALS.forEach(function (profile) {
       var icon = SOCIAL_ICONS[profile.id];
       if (!icon) return;
-      var svg = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" ' +
-        'stroke-width="1.7" stroke-linejoin="round">' + icon.path + '</svg>';
+      var svg = '<svg viewBox="0 0 24 24" aria-hidden="true" ' + icon.attrs + '>' +
+        (icon.defs || '') + icon.inner + '</svg>';
 
       if (profile.url) {
         var link = doc.createElement('a');
@@ -196,6 +239,7 @@
         link.target = '_blank';
         link.rel = 'noopener';
         link.title = icon.label;
+        link.setAttribute('data-social', profile.id);
         link.setAttribute('aria-label', 'Nations Maintenance on ' + icon.label);
         link.innerHTML = svg;
         socialRow.appendChild(link);
@@ -204,6 +248,7 @@
            link to nowhere would be worse than an honest placeholder. */
         var pending = doc.createElement('span');
         pending.className = 'social__pending';
+        pending.setAttribute('data-social', profile.id);
         pending.setAttribute('role', 'img');
         pending.setAttribute('aria-label', icon.label + ' — profile coming soon');
         pending.title = icon.label + ' profile coming soon';
