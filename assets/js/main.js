@@ -244,21 +244,52 @@
         link.innerHTML = svg;
         socialRow.appendChild(link);
       } else if (SHOW_PENDING_SOCIALS) {
-        /* Visible but inert: there is no profile to send anyone to yet, and a
-           link to nowhere would be worse than an honest placeholder. */
+        /* Visible but inert. Nothing permanent is printed on the page — the
+           "Coming soon" tip is revealed by the stylesheet on hover, and by the
+           tap handler below on touch. A visually-hidden note keeps it clear to
+           a screen reader either way. */
         var pending = doc.createElement('span');
         pending.className = 'social__pending';
         pending.setAttribute('data-social', profile.id);
-        pending.setAttribute('role', 'img');
-        pending.setAttribute('aria-label', icon.label + ' — profile coming soon');
-        pending.title = icon.label + ' profile coming soon';
-        pending.innerHTML = svg;
+        pending.setAttribute('data-tip', 'Coming soon');
+        pending.innerHTML = svg +
+          '<span class="visually-hidden">' + icon.label + ' — profile coming soon</span>';
         socialRow.appendChild(pending);
       }
     });
     if (socialRow.children.length) {
       socialMount.parentNode.insertBefore(socialRow, socialMount.nextSibling);
     }
+  }
+
+  /* ---------- "coming soon" tip on tap ---------- */
+  /* A phone has no hover, so a tap reveals the tip the stylesheet shows on
+     :hover. It clears itself after a moment, or when you tap somewhere else. */
+  var pendingIcons = doc.querySelectorAll('.social__pending');
+  if (pendingIcons.length) {
+    var tipTimer = null;
+    var clearTips = function () {
+      Array.prototype.forEach.call(pendingIcons, function (el) {
+        el.classList.remove('is-tipped');
+      });
+    };
+    Array.prototype.forEach.call(pendingIcons, function (el) {
+      el.addEventListener('click', function () {
+        var wasShown = el.classList.contains('is-tipped');
+        clearTips();
+        window.clearTimeout(tipTimer);
+        if (!wasShown) {
+          el.classList.add('is-tipped');
+          tipTimer = window.setTimeout(clearTips, 2600);
+        }
+      });
+    });
+    doc.addEventListener('click', function (e) {
+      if (!e.target.closest('.social__pending')) {
+        window.clearTimeout(tipTimer);
+        clearTips();
+      }
+    });
   }
 
   /* ---------- reviews ---------- */

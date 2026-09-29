@@ -522,7 +522,12 @@ picture{display:block}
 .footer-badges span{font-size:.74rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:.3rem .6rem}
 
 /* ---------- social links (built in main.js — see SOCIALS there) ----------
-   Two things are doing work here:
+   Each one is a stacked item: the ringed glyph, with a label underneath.
+   While a platform has no URL the label reads "Coming soon", so the row is
+   honest about its state rather than looking live and doing nothing when
+   clicked. Once a URL is pasted in, that label becomes the platform name.
+
+   Two styling notes:
    1. the ring is the site's orange, so the row reads as a highlighted set of
       actions against the dark green footer;
    2. the glyph inside keeps each platform's own brand colour, which is what
@@ -545,21 +550,50 @@ picture{display:block}
 
 .social a,.social__pending{
   width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;
-  border:1.5px solid var(--orange-500);
-  color:var(--social-brand,#fff);
+  position:relative;border:1.5px solid var(--orange-500);
+  color:var(--social-brand,#fff);background:rgba(255,255,255,.04);
 }
 .social a{
-  text-decoration:none;background:rgba(255,255,255,.04);
+  text-decoration:none;
   transition:border-color .16s ease,background-color .16s ease,transform .16s ease;
 }
 .social a:hover,.social a:focus-visible{
   border-color:var(--social-brand);background:var(--social-soft);transform:translateY(-2px);
 }
-/* No URL yet: still legible and on-brand, but the dashed ring and the tooltip
-   say it isn't live, so nobody clicks expecting to go somewhere. */
-.social__pending{border-style:dashed;cursor:default;background:rgba(255,255,255,.04)}
-.social__pending svg{opacity:.85}
-.social--light a,.social--light .social__pending{background:var(--paper)}
+
+/* No URL yet: dashed ring, and the state is revealed on hover (desktop) or tap
+   (touch, via the .is-tipped class main.js adds). No permanent label — the row
+   stays clean, but nobody can click one expecting to go somewhere. */
+.social__pending{border-style:dashed;cursor:default}
+.social__pending::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + .45rem);left:50%;
+  transform:translate(-50%,4px);
+  background:var(--ink);color:#fff;
+  font-size:.7rem;font-weight:600;letter-spacing:.01em;line-height:1;
+  padding:.35rem .5rem;border-radius:6px;white-space:nowrap;
+  box-shadow:var(--shadow-sm);
+  opacity:0;pointer-events:none;
+  transition:opacity .15s ease,transform .15s ease;
+}
+.social__pending::before{
+  content:"";position:absolute;bottom:calc(100% + .1rem);left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--ink);
+  opacity:0;pointer-events:none;transition:opacity .15s ease;
+}
+.social__pending:hover::after,.social__pending.is-tipped::after{
+  opacity:1;transform:translate(-50%,0);
+}
+.social__pending:hover::before,.social__pending.is-tipped::before{opacity:1}
+/* the first icon sits hard against the gutter, so its tip is nudged inward
+   rather than hanging off the edge of a phone screen */
+.social__pending:first-child::after{left:0;transform:translate(0,4px)}
+.social__pending:first-child:hover::after,.social__pending:first-child.is-tipped::after{transform:translate(0,0)}
+.social__pending:first-child::before{left:20px}
+
+.social--light .social__pending::after{background:var(--evergreen-800)}
+.social--light .social__pending::before{border-top-color:var(--evergreen-800)}
 .social--light [data-social="x"]{--social-brand:#0f1419;--social-soft:rgba(15,20,25,.12)}
 .social--light [data-social="tiktok"]{--social-brand:#111;--social-soft:rgba(17,17,17,.12)}
 
