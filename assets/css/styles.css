@@ -532,6 +532,12 @@ picture{display:block}
 }
 .social a:hover{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.45);transform:translateY(-2px)}
 .social svg{width:18px;height:18px}
+/* Icon shown before a profile URL has been supplied: visible, but not a link. */
+.social__pending{
+  width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;
+  border:1px dashed rgba(255,255,255,.28);color:rgba(255,255,255,.5);cursor:default;
+}
+.social--light .social__pending{border-color:var(--line);color:var(--ink-mute);background:var(--paper)}
 .social--light a{border-color:var(--line);color:var(--evergreen-700);background:var(--paper)}
 .social--light a:hover{background:var(--sand-050);border-color:var(--moss);color:var(--evergreen-800)}
 

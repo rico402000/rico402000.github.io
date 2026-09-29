@@ -15,8 +15,10 @@
      (a handler on your own domain) need no change.
 
      SOCIALS: paste the full profile URL for each platform you actually
-     have. Anything left as '' is removed from the page — the site never
-     shows a social icon that leads nowhere.
+     have. Every platform keeps its place in the footer either way: one with a URL
+     becomes a real link, one without it shows greyed out and labelled "profile
+     coming soon". It is not a link in that state, so nothing on the site can
+     send a visitor to a dead end or a wrong company's page.
 
      GOOGLE_REVIEW_URL: the "write a review" link from your Google Business
      Profile. While it is empty, the review buttons point visitors to the
@@ -33,14 +35,22 @@
     FORM_ENDPOINT: ''
   };
 
-  var SOCIALS = {
-    facebook: '',
-    instagram: '',
-    google: '',
-    linkedin: '',
-    x: '',
-    youtube: ''
-  };
+  /* Social profiles, in footer order. Paste the full URL — e.g.
+     'https://www.facebook.com/nationsmaintenance' — and that icon starts
+     linking immediately; no other file needs touching. Anything left empty
+     stays visible but inert. Set SHOW_PENDING_SOCIALS to false to hide the
+     ones with no URL instead. */
+  var SHOW_PENDING_SOCIALS = true;
+
+  var SOCIALS = [
+    { id: 'facebook',  label: 'Facebook',  url: '' },
+    { id: 'instagram', label: 'Instagram', url: '' },
+    { id: 'google',    label: 'Google',    url: '' },
+    { id: 'youtube',   label: 'YouTube',   url: '' },
+    { id: 'linkedin',  label: 'LinkedIn',  url: '' },
+    { id: 'x',         label: 'X',         url: '' },
+    { id: 'tiktok',    label: 'TikTok',    url: '' }
+  ];
 
   var GOOGLE_REVIEW_URL = '';
 
@@ -164,25 +174,42 @@
     facebook: { label: 'Facebook', path: '<path d="M15 4h-2.3A3.2 3.2 0 0 0 9.5 7.2V10H7.4v2.9h2.1V21h2.9v-8.1h2.3l.5-2.9h-2.8V7.6c0-.4.3-.7.7-.7H15z"/>' },
     instagram: { label: 'Instagram', path: '<rect x="3.5" y="3.5" width="17" height="17" rx="4.6"/><circle cx="12" cy="12" r="4"/><circle cx="16.9" cy="7.1" r="1.1" fill="currentColor" stroke="none"/>' },
     google: { label: 'Google', path: '<path d="M20.2 12.2A8.4 8.4 0 1 1 17 5.6"/><path d="M20.2 12.2h-7.6"/>' },
+    youtube: { label: 'YouTube', path: '<rect x="2.6" y="5.6" width="18.8" height="12.8" rx="4"/><path d="M10.4 9.6l4.2 2.4-4.2 2.4z"/>' },
     linkedin: { label: 'LinkedIn', path: '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 10.6V16.2M8 7.7v.1M12 16.2v-3.3a2 2 0 0 1 4 0v3.3"/>' },
     x: { label: 'X', path: '<path d="M4.4 4h3.5l4.2 5.6L16.8 4h2.8l-6.2 7.6L20 20h-3.5l-4.4-5.9L7.2 20H4.4l6.5-7.9z" fill="currentColor" stroke="none"/>' },
-    youtube: { label: 'YouTube', path: '<rect x="2.6" y="5.6" width="18.8" height="12.8" rx="4"/><path d="M10.4 9.6l4.2 2.4-4.2 2.4z"/>' }
+    tiktok: { label: 'TikTok', path: '<path d="M14.6 4c.4 2 1.7 3.3 3.7 3.5v2.6c-1.4 0-2.6-.4-3.7-1.2v5.5a5.4 5.4 0 1 1-5.4-5.4c.3 0 .6 0 .9.1v2.7a2.7 2.7 0 1 0 1.9 2.6V4z" fill="currentColor" stroke="none"/>' }
   };
 
   var socialMount = doc.querySelector('.footer-badges') || doc.querySelector('.site-footer .brand');
   if (socialMount) {
     var socialRow = doc.createElement('div');
     socialRow.className = 'social';
-    Object.keys(SOCIAL_ICONS).forEach(function (key) {
-      if (!SOCIALS[key]) return;
-      var link = doc.createElement('a');
-      link.href = SOCIALS[key];
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.setAttribute('aria-label', 'Nations Maintenance on ' + SOCIAL_ICONS[key].label);
-      link.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round">' +
-        SOCIAL_ICONS[key].path + '</svg>';
-      socialRow.appendChild(link);
+    SOCIALS.forEach(function (profile) {
+      var icon = SOCIAL_ICONS[profile.id];
+      if (!icon) return;
+      var svg = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.7" stroke-linejoin="round">' + icon.path + '</svg>';
+
+      if (profile.url) {
+        var link = doc.createElement('a');
+        link.href = profile.url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.title = icon.label;
+        link.setAttribute('aria-label', 'Nations Maintenance on ' + icon.label);
+        link.innerHTML = svg;
+        socialRow.appendChild(link);
+      } else if (SHOW_PENDING_SOCIALS) {
+        /* Visible but inert: there is no profile to send anyone to yet, and a
+           link to nowhere would be worse than an honest placeholder. */
+        var pending = doc.createElement('span');
+        pending.className = 'social__pending';
+        pending.setAttribute('role', 'img');
+        pending.setAttribute('aria-label', icon.label + ' — profile coming soon');
+        pending.title = icon.label + ' profile coming soon';
+        pending.innerHTML = svg;
+        socialRow.appendChild(pending);
+      }
     });
     if (socialRow.children.length) {
       socialMount.parentNode.insertBefore(socialRow, socialMount.nextSibling);
