@@ -597,6 +597,7 @@ picture{display:block}
   background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);
 }
 .action-bar .btn{flex:1}
+.action-bar .btn[hidden]{display:none}
 
 /* ---------- reveal on scroll (progressive enhancement) ---------- */
 /* .reveal-hidden is added by JS only when IntersectionObserver is usable,
@@ -612,7 +613,9 @@ picture{display:block}
 }
 @media (max-width:960px){
   .nav-toggle{display:inline-flex;order:3}
-  .header-phone{display:none}
+  /* the fixed action bar carries the call and quote buttons on small screens,
+     so the header keeps only the brand and the menu — no third duplicate */
+  .header-cta{display:none}
   .nav{
     position:fixed;inset:74px 0 auto 0;z-index:99;
     background:var(--paper);border-bottom:1px solid var(--line);
@@ -642,23 +645,52 @@ picture{display:block}
   body{padding-bottom:4.6rem}
 }
 @media (max-width:720px){
+  :root{--section-y:3rem}
   .grid--2,.grid--3,.offer-grid{grid-template-columns:1fr}
   .review-grid{grid-template-columns:1fr}
   .field-row{grid-template-columns:1fr}
   .split__figure{order:-1}
-  .trust__list{grid-template-columns:1fr}
   .footer-grid{grid-template-columns:1fr}
   .hero__media img{object-position:center 35%}
+
+  /* Hero: drop the phone button, since the fixed bar below always carries the
+     number. Only tel: links are removed — on the contact page the secondary
+     button jumps to the form and is worth keeping. */
+  .hero__inner{padding-block:clamp(2.25rem,7vw,3.5rem)}
+  .hero__ctas{margin-bottom:1.5rem}
+  .hero__ctas .btn--ghost[href^="tel:"]{display:none}
+
+  /* Trust strip: five stacked blocks of boilerplate ate most of a screen.
+     Running the label and its note together on one line roughly halves it. */
+  .trust__list{grid-template-columns:1fr}
+  .trust__list li{padding:.8rem 1rem .8rem 1.15rem}
+  .trust__list li::before{top:.9rem;bottom:.9rem}
+  .trust__list b{display:inline-block;font-size:1.08rem;margin:0 .5rem 0 0;vertical-align:baseline}
+
+  /* Long lists of cards read better with tighter padding on a phone. */
+  .tile{padding:1.15rem 1.15rem}
+  .card__body{padding:1.15rem 1.2rem 1.3rem}
 }
 @media (max-width:520px){
+  /* Desktop-scaled headings cost a lot of vertical room on a phone. */
+  :root{
+    --step-5:2.1rem;
+    --step-4:1.72rem;
+    --step-3:1.5rem;
+    --section-y:2.6rem;
+  }
   .grid--4,.steps--4{grid-template-columns:1fr}
   .steps--4 .step::after{display:none}
+  .steps--4 .step{padding-top:2.6rem}
   .btn{width:100%}
   .btn-row{gap:.6rem}
   .header-inner{min-height:66px}
   .brand__mark{width:34px;height:34px}
   .brand__tag{display:none}
   .nav{inset:66px 0 auto 0}
+  .hero__lead{font-size:1.05rem}
+  .hero__points{gap:.35rem 0;font-size:.9rem}
+  .qr-card img{width:150px;height:150px}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}

@@ -262,6 +262,21 @@
     el.hidden = Boolean(GOOGLE_REVIEW_URL);
   });
 
+  /* ---------- mobile action bar ---------- */
+  /* On a phone the hero already shows its own primary button, so repeating the
+     same call to action in the fixed bar put two identical orange buttons on
+     screen at once. The bar's non-phone action stays hidden until the hero's
+     buttons have scrolled out of view, so there is only ever one in front of
+     the visitor. */
+  var barAction = doc.querySelector('.action-bar a:not([href^="tel:"])');
+  var heroCtas = doc.querySelector('.hero__ctas');
+  if (barAction && heroCtas && 'IntersectionObserver' in window) {
+    barAction.hidden = true;
+    new IntersectionObserver(function (entries) {
+      barAction.hidden = entries[entries.length - 1].isIntersecting;
+    }, { threshold: 0 }).observe(heroCtas);
+  }
+
   /* ---------- reveal on scroll ---------- */
   var reveals = doc.querySelectorAll('.reveal');
   if (reveals.length) {
