@@ -290,6 +290,10 @@ picture{display:block}
   margin-bottom:.35rem;letter-spacing:-.02em;
 }
 .trust__list span{font-size:.9rem;color:var(--ink-mute)}
+/* Items given extra weight: the label goes to the accent colour and the cell
+   takes a faint warm tint, so the key credentials read before the detail. */
+.trust__list li.is-highlight{background:linear-gradient(rgba(226,99,26,.07),rgba(226,99,26,.07)),var(--sand-100)}
+.trust__list li.is-highlight b{color:var(--orange-600)}
 
 /* ---------- sections ---------- */
 .section{padding-block:var(--section-y)}
