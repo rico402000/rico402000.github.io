@@ -431,29 +431,8 @@
       page: window.location.href
     };
 
-    /* Hand the enquiry to the visitor's own mail app, already addressed and
-       filled in. Used when there is no endpoint, and as the safety net when
-       the endpoint cannot be reached — an enquiry must never just vanish. */
-    function openMailClient(payload) {
-      var body = [
-        'Name: ' + payload.name,
-        'Phone: ' + payload.phone,
-        'Email: ' + payload.email,
-        'Property type: ' + payload.property,
-        'Service needed: ' + payload.service,
-        '',
-        payload.message,
-        '',
-        'Sent from ' + payload.page
-      ].join('\n');
-      window.location.href = 'mailto:' + SITE.email +
-        '?subject=' + encodeURIComponent('Website enquiry — ' + payload.name) +
-        '&body=' + encodeURIComponent(body);
-    }
-
     if (!SITE.FORM_ENDPOINT) {
-      openMailClient(payload);
-      say('ok', 'Your email app should now be open with the request ready to send. Prefer to talk? Call ' + SITE.phone + '.');
+      say('error', 'The form is not connected yet. Please call ' + SITE.phone + ' or email ' + SITE.email + '.');
       return;
     }
 
@@ -466,13 +445,14 @@
     }).then(function (res) {
       if (!res.ok) throw new Error('Request failed');
       form.reset();
-      say('ok', 'Thanks — your request is in. We will call or email you shortly to schedule your free walkthrough.');
+      /* The enquiry is in the inbox: acknowledge it here and promise the reply
+         window. Nothing is handed off to the visitor's own mail app. */
+      say('ok', 'Request sent — thank you. We reply to every request within 24 hours, usually much sooner.');
     }).catch(function () {
-      /* The handler could not be reached — most likely the site is being served
-         from somewhere without PHP. Fall back to the mail client rather than
-         letting the enquiry die on the screen. */
-      openMailClient(payload);
-      say('ok', 'We could not submit that automatically, so your email app has been opened with the details ready to send. You can also call ' + SITE.phone + '.');
+      /* Deliberately no mail-client hand-off: if the handler could not be
+         reached the visitor needs a route that still works, so give them the
+         phone number and address to use directly. */
+      say('error', 'We could not send that just now. Please call ' + SITE.phone + ' or email ' + SITE.email + ' and we will take the details directly.');
     }).then(function () {
       if (submit) { submit.disabled = false; submit.textContent = submit.dataset.label || 'Send request'; }
     });
