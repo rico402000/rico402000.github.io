@@ -226,7 +226,7 @@
   var socialMount = doc.querySelector('.footer-badges') || doc.querySelector('.site-footer .brand');
   if (socialMount) {
     var socialRow = doc.createElement('div');
-    socialRow.className = 'social';
+    socialRow.className = 'social social--light';
     SOCIALS.forEach(function (profile) {
       var icon = SOCIAL_ICONS[profile.id];
       if (!icon) return;
