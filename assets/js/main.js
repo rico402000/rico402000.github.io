@@ -36,7 +36,13 @@
   var SITE = {
     phone: '(330) 353-1136',
     email: 'jordon@nationsmaintenance.com',
-    FORM_ENDPOINT: '/send.php'
+    /* Formspree endpoint — a hosted form backend, so the form needs no server
+       code and works on any host, static ones included. Whichever address is
+       configured as the destination in the Formspree dashboard receives it;
+       send.php is kept as an on-domain alternative (set this to '/send.php').
+       The host must stay allowed in connect-src in _headers, .htaccess and
+       serve.py — formspree.io already is. */
+    FORM_ENDPOINT: 'https://formspree.io/f/mrpbddap'
   };
 
   /* Social profiles, in footer order. Paste the full URL — e.g.
@@ -436,23 +442,56 @@
       return;
     }
 
+    /* Formspree takes form-encoded fields, and answers with JSON when the
+       Accept header asks for it — so field-level errors can be surfaced rather
+       than swallowed. No Formspree SDK: that library loads from a CDN, which
+       the site's own Content Security Policy deliberately forbids. */
+    var body = new URLSearchParams();
+    body.append('name', payload.name);
+    body.append('phone', payload.phone);
+    body.append('email', payload.email);
+    body.append('property', payload.property);
+    body.append('service', payload.service);
+    body.append('message', payload.message);
+    body.append('page', payload.page);
+    /* Formspree control fields. _subject sets the email subject; the address in
+       the "email" field above becomes Reply-To, so replying in the mail client
+       answers the customer. _gotcha is Formspree's own honeypot. */
+    body.append('_subject', 'Website enquiry — ' + payload.name +
+      (payload.service ? ' — ' + payload.service : ''));
+    body.append('_gotcha', '');
+    body.append('company_website', '');   // our honeypot, also used by send.php
+
     if (submit) { submit.disabled = true; submit.dataset.label = submit.textContent; submit.textContent = 'Sending…'; }
 
     fetch(SITE.FORM_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+      body: body.toString()
     }).then(function (res) {
-      if (!res.ok) throw new Error('Request failed');
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        /* Formspree reports validation problems as {errors: [{field, message}]}
+           — pass the first one through, because "That email address looks
+           wrong" is far more useful to the visitor than a generic failure. */
+        if (res.ok && !(data.errors && data.errors.length)) {
+          return data;
+        }
+        var first = data.errors && data.errors.length ? data.errors[0].message : null;
+        var err = new Error(first || 'Request failed');
+        err.isValidation = Boolean(first);
+        throw err;
+      });
+    }).then(function () {
       form.reset();
       /* The enquiry is in the inbox: acknowledge it here and promise the reply
          window. Nothing is handed off to the visitor's own mail app. */
       say('ok', 'Request sent — thank you. We reply to every request within 24 hours, usually much sooner.');
-    }).catch(function () {
-      /* Deliberately no mail-client hand-off: if the handler could not be
-         reached the visitor needs a route that still works, so give them the
-         phone number and address to use directly. */
-      say('error', 'We could not send that just now. Please call ' + SITE.phone + ' or email ' + SITE.email + ' and we will take the details directly.');
+    }).catch(function (err) {
+      /* Deliberately no mail-client hand-off: if the submission could not be
+         sent the visitor needs a route that still works, so give them the phone
+         number and address to use directly. */
+      var detail = (err && err.isValidation && err.message) ? err.message + ' ' : 'We could not send that just now. ';
+      say('error', detail + 'Please call ' + SITE.phone + ' or email ' + SITE.email + ' and we will take the details directly.');
     }).then(function () {
       if (submit) { submit.disabled = false; submit.textContent = submit.dataset.label || 'Send request'; }
     });
