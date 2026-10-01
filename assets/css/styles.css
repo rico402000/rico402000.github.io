@@ -164,9 +164,12 @@ hr{border:0;border-top:1px solid var(--slate-line);margin:2.5rem 0}
 }
 .brand__logo{height:clamp(42px,11vw,58px);width:auto;display:block}
 .brand__tag{
-  font-family:var(--font-display);font-size:.72rem;font-weight:600;
-  letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ink-mute);line-height:1;
+  font-family:var(--font-display);
+  /* a long tagline: one fixed small size and never wrapped, so the header row
+     keeps one clean line rather than breaking mid-phrase */
+  font-size:.62rem;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  white-space:nowrap;color:var(--ink-mute);line-height:1;
 }
 .site-footer .brand__logo{height:72px}
 .site-footer .brand__tag{color:rgba(255,255,255,.55)}
@@ -211,7 +214,7 @@ hr{border:0;border-top:1px solid var(--slate-line);margin:2.5rem 0}
 .header-phone{
   display:inline-flex;align-items:center;gap:.5rem;
   font-family:var(--font-display);font-weight:700;font-size:1rem;color:var(--navy-800);
-  text-decoration:none;padding:.5rem .3rem;
+  text-decoration:none;padding:.5rem .3rem;white-space:nowrap;
 }
 .header-phone svg{width:17px;height:17px;color:var(--red-500)}
 .header-phone:hover{color:var(--red-600)}
@@ -677,17 +680,21 @@ picture{display:block}
   .footer-grid{grid-template-columns:1fr 1fr}
   .trust__list{grid-template-columns:repeat(2,1fr)}
 }
-@media (max-width:960px){
+@media (max-width:1150px){
   .nav-toggle{display:inline-flex;order:3}
   /* the fixed action bar carries the call and quote buttons on small screens,
      so the header keeps only the brand and the menu — no third duplicate */
   .header-cta{display:none}
+  /* The logo lockup plus the full nav needs roughly 1150px, so below that the
+     nav collapses. The panel is positioned against the header itself rather
+     than a hard-coded pixel offset, so it always sits flush whatever the
+     header height ends up being. */
   .nav{
-    position:fixed;inset:74px 0 auto 0;z-index:99;
+    position:absolute;top:100%;left:0;right:0;z-index:99;
     background:var(--paper);border-bottom:1px solid var(--slate-line);
     box-shadow:var(--shadow);
     padding:1rem var(--gutter) 1.6rem;
-    display:none;max-height:calc(100vh - 74px);overflow-y:auto;
+    display:none;max-height:calc(100vh - 90px);overflow-y:auto;
   }
   .nav.is-open{display:block}
   .nav__list{display:grid;gap:.15rem;align-items:stretch}
