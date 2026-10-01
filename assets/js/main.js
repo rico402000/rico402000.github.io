@@ -5,14 +5,18 @@
   /* ------------------------------------------------------------------
      Site config — this is the only place you need to edit.
 
-     FORM_ENDPOINT: paste a form-handling URL (Formspree, Netlify, or your
-     own handler). While it is empty, the quote form falls back to opening
-     the visitor's mail client so no enquiry is ever silently lost.
-     If you DO paste a third-party endpoint, its host must also be allowed in
-     the Content Security Policy — add it to connect-src in BOTH `_headers`
-     and `.htaccess`, for example:  connect-src 'self' https://formspree.io;
-     Otherwise the browser will block the submission. Same-origin endpoints
-     (a handler on your own domain) need no change.
+     FORM_ENDPOINT: where the quote and information form posts. It is set to
+     /send.php — a handler on this same domain that emails the enquiry to
+     RECIPIENT below. Because it is same-origin, the Content Security Policy
+     needs no change. If the handler cannot run (a static host like GitHub
+     Pages cannot execute PHP, or the mailbox is down), the form falls back to
+     opening the visitor's own mail client addressed to the same inbox, so an
+     enquiry is never silently lost. To use a third-party service instead,
+     paste its URL here AND add its host to connect-src in both `_headers` and
+     `.htaccess`.
+
+     email: the address enquiries go to. It is also published as a mailto link
+     in the footer and on the contact page.
 
      SOCIALS: paste the full profile URL for each platform you actually
      have. Every platform keeps its place in the footer either way: one with a URL
@@ -31,8 +35,8 @@
      ------------------------------------------------------------------ */
   var SITE = {
     phone: '(330) 353-1136',
-    email: 'info@nationsmaintenance.com',
-    FORM_ENDPOINT: ''
+    email: 'jordon@nationsmaintenance.com',
+    FORM_ENDPOINT: '/send.php'
   };
 
   /* Social profiles, in footer order. Paste the full URL — e.g.
@@ -427,7 +431,10 @@
       page: window.location.href
     };
 
-    if (!SITE.FORM_ENDPOINT) {
+    /* Hand the enquiry to the visitor's own mail app, already addressed and
+       filled in. Used when there is no endpoint, and as the safety net when
+       the endpoint cannot be reached — an enquiry must never just vanish. */
+    function openMailClient(payload) {
       var body = [
         'Name: ' + payload.name,
         'Phone: ' + payload.phone,
@@ -440,8 +447,12 @@
         'Sent from ' + payload.page
       ].join('\n');
       window.location.href = 'mailto:' + SITE.email +
-        '?subject=' + encodeURIComponent('Quote request — ' + payload.name) +
+        '?subject=' + encodeURIComponent('Website enquiry — ' + payload.name) +
         '&body=' + encodeURIComponent(body);
+    }
+
+    if (!SITE.FORM_ENDPOINT) {
+      openMailClient(payload);
       say('ok', 'Your email app should now be open with the request ready to send. Prefer to talk? Call ' + SITE.phone + '.');
       return;
     }
@@ -457,7 +468,11 @@
       form.reset();
       say('ok', 'Thanks — your request is in. We will call or email you shortly to schedule your free walkthrough.');
     }).catch(function () {
-      say('error', 'Something went wrong sending that. Please call ' + SITE.phone + ' and we will take the details over the phone.');
+      /* The handler could not be reached — most likely the site is being served
+         from somewhere without PHP. Fall back to the mail client rather than
+         letting the enquiry die on the screen. */
+      openMailClient(payload);
+      say('ok', 'We could not submit that automatically, so your email app has been opened with the details ready to send. You can also call ' + SITE.phone + '.');
     }).then(function () {
       if (submit) { submit.disabled = false; submit.textContent = submit.dataset.label || 'Send request'; }
     });
